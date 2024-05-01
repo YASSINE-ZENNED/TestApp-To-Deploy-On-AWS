@@ -14,6 +14,7 @@
     <name>TestApp-To-Deploy-On-AWS</name>
     <description>TestApp-To-Deploy-On-AWS</description>
     <properties>
+
         <java.version>17</java.version>
     </properties>
     <dependencies>
@@ -34,13 +35,17 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>  <configuration>
-                <release>8</release>
-                <archive>
-                    <manifestEntries>
-                        <Main-Class>com.example.TestApp-To-Deploy-On-AWS.TestAppToDeployOnAwsApplication</Main-Class> </manifestEntries>
-                </archive>
+                <version>3.13.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>com.example.testapptodeployonaws.TestAppToDeployOnAwsApplication</mainClass>
+                        </manifest>
+                    </archive>
                 </configuration>
+
             </plugin>
 
         </plugins>
