@@ -1,0 +1,47 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches: [ main, develop ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build JAR with Maven
+        uses: maven/maven-action@v3
+        with:
+          maven: '3.8.3'
+
+      - name: Store JAR artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: spring-boot-jar
+          path: target/*.jar
+
+      - name: Login to AWS ECR (if main branch)
+        uses: aws-actions/aws-ecr@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          aws-region: us-east-1
+          credentials: ${{ secrets.AWS_CREDENTIALS }}
+          registry-id: 432007199725.dkr.ecr.us-east-1.amazonaws.com
+
+      - name: Set TAG_NAME based on branch
+        run: |
+          if [[ ${{ github.ref }} == 'refs/heads/main' ]]; then
+            echo "TAG_NAME=latest" >> $GITHUB_ENV
+          else
+            echo "TAG_NAME=develop" >> $GITHUB_ENV
+          fi
+
+      - name: Build Docker image (use cache)
+        uses: docker/build-push-action@v3
+        with:
+          push: ${{ github.ref == 'refs/heads/main' }}
+          tags: 432007199725.dkr.ecr.us-east-1.amazonaws.com/yass-app:$TAG_NAME
+          cache_from: type=registry, ref=432007199725.dkr.ecr.us-east-1.amazonaws.com/yass-app:latest
+          file: Dockerfile
+
