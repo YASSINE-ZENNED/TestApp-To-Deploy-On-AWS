@@ -6,8 +6,10 @@ phases:
     commands:
       - mvn clean install
       - echo Logging in to Amazon ECR...
-      - aws --version
-      - $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
+      - aws --version  # Optional, check AWS CLI version
+      - AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account | cut -d '"' -f2)
+      - ECR_PASSWORD=$(aws ecr get-login-password --region $AWS_DEFAULT_REGION)
+      - echo $ECR_PASSWORD | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - REPOSITORY_URI=260323221474.dkr.ecr.us-east-1.amazonaws.com/testapp
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}')
