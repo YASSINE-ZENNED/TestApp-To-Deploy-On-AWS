@@ -39,6 +39,8 @@
             </plugin>
 
         </plugins>
+             		<finalName>TestApp</finalName>
+
     </build>
 
 
